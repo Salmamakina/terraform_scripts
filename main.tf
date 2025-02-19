@@ -47,13 +47,13 @@ resource "google_compute_instance" "jenkins" {
       nat_ip = google_compute_address.jenkins_external.address
     }
   } 
+ metadata = {
+    block-project-ssh-keys = true  # Désactiver les clés SSH globales
+  }
 
  tags = ["allow-jenkins-traffic"]
 
 }
-metadata = {
-    block-project-ssh-keys = true  # Désactiver les clés SSH globales
-  }
 
 resource "google_compute_firewall" "allow_ssh" {
   name    = "allow-jenkins-traffic"
