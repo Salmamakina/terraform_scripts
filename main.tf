@@ -12,15 +12,15 @@ resource "google_compute_subnetwork" "custom_subnetwork" {
 }
 
 # Création des adresses IP statiques pour la VM master
-resource "google_compute_address" "master_ip_internal_test" {
-    name         = "master-ip-internal_test"
+resource "google_compute_address" "master_ip_internal" {
+    name         = "master-ip-internal"
     address_type = "INTERNAL"
     subnetwork   = google_compute_subnetwork.custom_subnetwork.self_link
     region       = "us-central1"
   }
 
-resource "google_compute_address" "master_ip_external_test" {
-    name         = "master-ip-external_test"
+resource "google_compute_address" "master_ip_external" {
+    name         = "master-ip-external"
     address_type = "EXTERNAL"
     region       = "us-central1"
   }
@@ -41,14 +41,14 @@ resource "google_compute_instance" "master" {
   network_interface {
     network    = google_compute_network.custom_network.self_link
     subnetwork = google_compute_subnetwork.custom_subnetwork.self_link
-    network_ip = google_compute_address.master_ip_internal_test.address
+    network_ip = google_compute_address.master_ip_internal.address
 
     access_config {
-      nat_ip = google_compute_address.master_ip_external_test.address
+      nat_ip = google_compute_address.master_ip_external.address
     }
   } 
 
- tags = ["internal-communication", "allow-ssh"]
+ tags = ["internal-communication", "allow-inbound-traffic"]
 
 }
 
@@ -66,16 +66,16 @@ resource "google_compute_firewall" "internal_communication" {
 }
 
 resource "google_compute_firewall" "allow_ssh" {
-  name    = "allow-ssh"
+  name    = "allow-inbound-traffic"
   network = google_compute_network.custom_network.name
 
   allow {
     protocol = "tcp"
-    ports    = ["22"]
+    ports    = ["22", "3001", "5001", "80"]
   }
 
   source_ranges = ["0.0.0.0/0"]  # Autoriser SSH depuis n'importe où (à restreindre si besoin)
-  target_tags   = ["allow-ssh"]
+  target_tags   = ["allow-inbound-traffic"]
 }
 
 
@@ -84,14 +84,14 @@ resource "google_compute_firewall" "allow_ssh" {
 ####### worker vm
 # Création des adresses IP statiques pour la VM worker
 resource "google_compute_address" "worker_ip_internal" {
-    name         = "worker-ip-internal_test"
+    name         = "worker-ip-internal"
     address_type = "INTERNAL"
     subnetwork   = google_compute_subnetwork.custom_subnetwork.self_link
     region       = "us-central1"
   }
 
 resource "google_compute_address" "worker_ip_external" {
-    name         = "worker-ip-external_test"
+    name         = "worker-ip-external"
     address_type = "EXTERNAL"
     region       = "us-central1"
   }
@@ -119,7 +119,7 @@ resource "google_compute_instance" "worker" {
     }
   } 
   
-  tags = ["internal-communication", "allow-ssh"]
+  tags = ["internal-communication", "allow-inbound-traffic"]
 
 
 }
