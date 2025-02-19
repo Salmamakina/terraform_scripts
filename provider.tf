@@ -9,8 +9,8 @@ terraform {
 
 # Configure the GCP Provider
 provider "google" {
-  credentials = "kepler-key.json"
-  project = "kepler-scorpion-dev"  # the GCP project ID
+  credentials = "keplerdata.json"
+  project = "keplerdatav1"  # the GCP project ID
   region  = "us-central1"
   zone    = "us-central1-a"           
 }
