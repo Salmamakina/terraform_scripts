@@ -1,0 +1,8 @@
+[master]
+master-vm-test ansible_host=34.59.68.175 ansible_user=ubuntu 
+
+[workers]
+worker-vm-test ansible_host=34.72.246.215 ansible_user=salma
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
