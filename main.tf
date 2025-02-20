@@ -64,6 +64,6 @@ resource "google_compute_firewall" "allow_ssh" {
     ports    = ["22", "3001", "5001", "80"]
   }
 
-  source_ranges = ["0.0.0.0/0"]  # Autoriser SSH depuis n'importe où (à restreindre si besoin)
+  source_ranges = ["10.2.0.0/24"]  # Autoriser SSH depuis n'importe où (à restreindre si besoin)
   target_tags   = ["allow-jenkins-traffic"]
 }
