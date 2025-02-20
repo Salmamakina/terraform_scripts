@@ -1,3 +1,2 @@
-variable "credentials_file" {
-  default = "keplerdatav1.json"
-}
+variable "gcp_credentials" {}
+
