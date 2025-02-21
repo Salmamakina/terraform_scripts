@@ -10,17 +10,17 @@
         autoremove: yes
         autoclean: yes
 
-    - name: Installer Git si nécessaire
-      apt:
-        name: git
-        state: present
-      when: ansible_os_family == "Debian"
+    # - name: Installer Git si nécessaire
+    #   apt:
+    #     name: git
+    #     state: present
+    #   when: ansible_os_family == "Debian"
 
-    - name: Installer Java si nécessaire
-      apt:
-        name:
-          - openjdk-11-jdk
-          - ca-certificates-java
+    # - name: Installer Java si nécessaire
+    #   apt:
+    #     name:
+    #       - openjdk-11-jdk
+    #       - ca-certificates-java
 
     - name: Cloner le repo GitHub
       git:
@@ -29,32 +29,32 @@
         version: main
         force: yes
 
-    - name: Donner les permissions d'exécution aux scripts
-      file:
-        path: "/tmp/repo_installation/{{ item }}"
-        mode: "0755"
-      loop:
-        - install-hadoop-spark.sh
-        - install-drill-zookeeper.sh
-        - Adding-env-var.sh
+    # - name: Donner les permissions d'exécution aux scripts
+    #   file:
+    #     path: "/tmp/repo_installation/{{ item }}"
+    #     mode: "0755"
+    #   loop:
+    #     - install-hadoop-spark.sh
+    #     - install-drill-zookeeper.sh
+    #     - Adding-env-var.sh
 
-    - name: Obtenir le nombre de cœurs CPU
-      shell: "lscpu | grep '^CPU(s):' | awk '{print $2}'"
-      register: cpu_output
-      changed_when: false
+    # - name: Obtenir le nombre de cœurs CPU
+    #   shell: "lscpu | grep '^CPU(s):' | awk '{print $2}'"
+    #   register: cpu_output
+    #   changed_when: false
 
-    - name: Extraire le nombre de cœurs CPU
-      set_fact:
-        max_cpu: "{{ cpu_output.stdout }}"
+    # - name: Extraire le nombre de cœurs CPU
+    #   set_fact:
+    #     max_cpu: "{{ cpu_output.stdout }}"
 
-    - name: Obtenir la RAM totale
-      shell: "free -m | grep '^Mem:' | awk '{print $2}'"
-      register: ram_output
-      changed_when: false
+    # - name: Obtenir la RAM totale
+    #   shell: "free -m | grep '^Mem:' | awk '{print $2}'"
+    #   register: ram_output
+    #   changed_when: false
 
-    - name: Extraire la RAM totale en MB
-      set_fact:
-        max_ram: "{{ ram_output.stdout }}"
+    # - name: Extraire la RAM totale en MB
+    #   set_fact:
+    #     max_ram: "{{ ram_output.stdout }}"
 
     - name: Tâches spécifiques au master
       when: inventory_hostname == "master-vm-test"
@@ -104,22 +104,22 @@
             chdir: /tmp/repo_installation
           when: docker_compose_file.stat.exists
 
-    - name: Extraire le rôle du host (master ou worker)
-      set_fact:
-        role: "{{ inventory_hostname.split('-')[0] }}"
+    # - name: Extraire le rôle du host (master ou worker)
+    #   set_fact:
+    #     role: "{{ inventory_hostname.split('-')[0] }}"
 
-    - name: Installer Hadoop et Spark
-      shell: "bash /tmp/repo_installation/install-hadoop-spark.sh {{ hostvars['master-vm-test'].ansible_host }} {{ role }} {{ max_cpu }} {{ max_ram }}"
-      become: yes
-      become_user: root
+    # - name: Installer Hadoop et Spark
+    #   shell: "bash /tmp/repo_installation/install-hadoop-spark.sh {{ hostvars['master-vm-test'].ansible_host }} {{ role }} {{ max_cpu }} {{ max_ram }}"
+    #   become: yes
+    #   become_user: root
 
-    - name: Ajouter les variables d'environnement
-      shell: "bash /tmp/repo_installation/Adding-env-var.sh {{ role }} /root"
-      become: yes
+    # - name: Ajouter les variables d'environnement
+    #   shell: "bash /tmp/repo_installation/Adding-env-var.sh {{ role }} /root"
+    #   become: yes
 
-    - name: Installer Drill et Zookeeper
-      shell: "bash /tmp/repo_installation/install-drill-zookeeper.sh {{ hostvars['master-vm-test'].ansible_host }} {{ hostvars['worker-vm-test'].ansible_host }} {{ role }}"
-      become: yes
-      become_user: root
+    # - name: Installer Drill et Zookeeper
+    #   shell: "bash /tmp/repo_installation/install-drill-zookeeper.sh {{ hostvars['master-vm-test'].ansible_host }} {{ hostvars['worker-vm-test'].ansible_host }} {{ role }}"
+    #   become: yes
+    #   become_user: root
 
 
