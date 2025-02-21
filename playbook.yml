@@ -62,18 +62,18 @@
       set_fact:
         max_ram: "{{ ram_output.stdout }}"
 
-    # - name: Tâches spécifiques au master
-    #   when: inventory_hostname == "master-vm-test"
-    #   block:
-    #     - name: Donner les permissions d'exécution au script install-docker
-    #       file:
-    #         path: "/tmp/repo_installation/install-docker.sh"
-    #         mode: "0755"
+    - name: Tâches spécifiques au master
+      when: inventory_hostname == "master-vm-test"
+      block:
+        - name: Donner les permissions d'exécution au script install-docker
+          file:
+            path: "/tmp/repo_installation/install-docker.sh"
+            mode: "0755"
         
-    #     - name: Installation Docker et Docker-compose
-    #       shell: "bash /tmp/repo_installation/install-docker.sh"
-    #       become: yes
-    #       become_user: root
+        - name: Installation Docker et Docker-compose
+          shell: "bash /tmp/repo_installation/install-docker.sh"
+          become: yes
+          # become_user: root
         
     - name: Extraire le rôle du host (master ou worker)
       set_fact:
