@@ -93,6 +93,10 @@
             name: "{{ ansible_user }}"
             group: docker
             append: yes
+        - name: Vérifier si le fichier docker-compose.yml existe
+          stat:
+            path: /tmp/repo_installation/docker-compose.yml
+          register: docker_compose_file
 
         - name: Exécuter docker-compose
           shell: /usr/local/bin/docker-compose -f /tmp/repo_installation/docker-compose.yml up -d
