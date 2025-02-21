@@ -4,19 +4,19 @@
   become: yes
   tasks:
     - name: Mise à jour et mise à niveau des paquets
-      become: yes
       apt:
         update_cache: yes
         upgrade: dist
         autoremove: yes
         autoclean: yes
-    - name: Installer Git
+
+    - name: Installer Git si nécessaire
       apt:
         name: git
         state: present
       when: ansible_os_family == "Debian"
 
-    - name: Installer Java
+    - name: Installer Java si nécessaire
       apt:
         name:
           - openjdk-11-jdk
@@ -29,20 +29,14 @@
         version: main
         force: yes
 
-    - name: Donner les permissions d'exécution au script hadoop-spark
+    - name: Donner les permissions d'exécution aux scripts
       file:
-        path: "/tmp/repo_installation/install-hadoop-spark.sh"
+        path: "/tmp/repo_installation/{{ item }}"
         mode: "0755"
-
-    - name: Donner les permissions d'exécution au script drill-zookeeper
-      file:
-        path: "/tmp/repo_installation/install-drill-zookeeper.sh"
-        mode: "0755"
-
-    - name: Donner les permissions d'exécution au script Adding env var
-      file:
-        path: "/tmp/repo_installation/Adding-env-var.sh"
-        mode: "0755"
+      loop:
+        - install-hadoop-spark.sh
+        - install-drill-zookeeper.sh
+        - Adding-env-var.sh
 
     - name: Obtenir le nombre de cœurs CPU
       shell: "lscpu | grep '^CPU(s):' | awk '{print $2}'"
@@ -65,18 +59,47 @@
     - name: Tâches spécifiques au master
       when: inventory_hostname == "master-vm-test"
       block:
-        - name: Donner les permissions d'exécution au script install-docker
+        - name: Vérifier si Docker est installé
+          command: docker --version
+          register: docker_version
+          failed_when: false
+          changed_when: false
+
+        - name: Installer Docker si nécessaire
+          apt:
+            name: docker-ce
+            state: present
+          when: docker_version.rc != 0
+
+        - name: Démarrer Docker
+          systemd:
+            name: docker
+            state: started
+            enabled: yes
+
+        - name: Télécharger Docker Compose
+          shell: >
+            curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          args:
+            creates: /usr/local/bin/docker-compose
+
+        - name: Donner les permissions d'exécution à Docker Compose
           file:
-            path: "/tmp/repo_installation/install-docker.sh"
-            mode: "0755"
-        
-        - name: Installation Docker et Docker-compose
-          shell: "bash /tmp/repo_installation/install-docker.sh"
-          become: yes
-          become_user: root
-          environment:
-            PATH: "{{ ansible_env.PATH }}"  # S'assurer que le chemin est correctement défini pour l'utilisateur
-        
+            path: /usr/local/bin/docker-compose
+            mode: '0755'
+
+        - name: Ajouter l'utilisateur au groupe Docker
+          user:
+            name: "{{ ansible_user }}"
+            group: docker
+            append: yes
+
+        - name: Exécuter docker-compose
+          shell: /usr/local/bin/docker-compose -f /tmp/repo_installation/docker-compose.yml up -d
+          args:
+            chdir: /tmp/repo_installation
+          when: docker_compose_file.stat.exists
+
     - name: Extraire le rôle du host (master ou worker)
       set_fact:
         role: "{{ inventory_hostname.split('-')[0] }}"
@@ -94,4 +117,5 @@
       shell: "bash /tmp/repo_installation/install-drill-zookeeper.sh {{ hostvars['master-vm-test'].ansible_host }} {{ hostvars['worker-vm-test'].ansible_host }} {{ role }}"
       become: yes
       become_user: root
+
 
