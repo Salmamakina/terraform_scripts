@@ -75,7 +75,16 @@
             state: present
     
         - name: Ajouter la clé GPG officielle de Docker
-          shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          get_url:
+            url: https://download.docker.com/linux/ubuntu/gpg
+            dest: /tmp/docker.gpg
+            mode: '0644'
+            
+        - name: Ajouter la clé GPG à apt
+          apt_key:
+            file: /tmp/docker.gpg
+            state: present
+
     
         - name: Ajouter le dépôt Docker
           shell: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
