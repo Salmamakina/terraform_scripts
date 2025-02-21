@@ -90,9 +90,9 @@
             state: present
         
         - name: Ajouter le dépôt Docker
-          shell: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-          become: true
-
+          apt_repository:
+            repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable"
+            state: present
         - name: Mettre à jour les paquets après l'ajout du dépôt Docker
           apt:
             update_cache: yes
