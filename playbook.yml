@@ -65,11 +65,29 @@
           failed_when: false
           changed_when: false
 
-        - name: Installer Docker si nécessaire
+        - name: Installer les paquets nécessaires
+          apt:
+            name:
+              - apt-transport-https
+              - ca-certificates
+              - curl
+              - software-properties-common
+            state: present
+    
+        - name: Ajouter la clé GPG officielle de Docker
+          shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    
+        - name: Ajouter le dépôt Docker
+          shell: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    
+        - name: Mettre à jour les paquets après l'ajout du dépôt Docker
+          apt:
+            update_cache: yes
+    
+        - name: Installer Docker
           apt:
             name: docker-ce
             state: present
-          when: docker_version.rc != 0
 
         - name: Démarrer Docker
           systemd:
