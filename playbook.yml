@@ -73,7 +73,9 @@
         - name: Installation Docker et Docker-compose
           shell: "bash /tmp/repo_installation/install-docker.sh"
           become: yes
-          # become_user: root
+          become_user: root
+          environment:
+            PATH: "{{ ansible_env.PATH }}"  # S'assurer que le chemin est correctement défini pour l'utilisateur
         
     - name: Extraire le rôle du host (master ou worker)
       set_fact:
