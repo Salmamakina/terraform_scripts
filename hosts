@@ -1,5 +1,5 @@
-#[master]
-#master-vm-test ansible_host=10.1.0.2 ansible_user=ubuntu 
+[master]
+master-vm-test ansible_host=10.1.0.2 ansible_user=ubuntu 
 
 [workers]
 worker-vm-test ansible_host=10.1.0.3 ansible_user=salma
