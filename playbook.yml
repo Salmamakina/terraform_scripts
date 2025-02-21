@@ -71,7 +71,6 @@
               - apt-transport-https
               - ca-certificates
               - curl
-              - software-properties-common
             state: present
     
         - name: Ajouter la clé GPG officielle de Docker
@@ -85,10 +84,15 @@
             file: /tmp/docker.gpg
             state: present
 
-    
+        - name: Installer software-properties-common
+          apt:
+            name: software-properties-common
+            state: present
+        
         - name: Ajouter le dépôt Docker
           shell: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-    
+          become: true
+
         - name: Mettre à jour les paquets après l'ajout du dépôt Docker
           apt:
             update_cache: yes
