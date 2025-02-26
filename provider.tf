@@ -9,9 +9,13 @@ terraform {
 
 # Configure the GCP Provider
 provider "google" {
-  credentials = file("/tmp/keplerdatav1.json")
+  credentials = file(var.gcp_credentials)
   project = "keplerdatav1"  # the GCP project ID
   region  = "us-central1"
   zone    = "us-central1-b"           
+}
+variable "gcp_credentials" {
+  description = "/tmp/keplerdatav1.json"
+  type        = string
 }
 
