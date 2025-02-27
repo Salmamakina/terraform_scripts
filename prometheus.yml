@@ -4,5 +4,8 @@ global:
 scrape_configs:
   - job_name: 'node'
     static_configs:
-      - targets: ['34.72.246.215:9100']
+      - targets:
+          - '10.1.0.2:9100'  # Adresse interne de la VM master
+          - '10.1.0.3:9100'  # Adresse interne de la VM worker
+
 
